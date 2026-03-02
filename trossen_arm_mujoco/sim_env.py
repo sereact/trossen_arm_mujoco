@@ -78,8 +78,8 @@ class TrossenAIStationaryTask(base.Task):
         right_gripper_action = normalized_right_gripper_action
 
         # Ensure both gripper fingers act oppositely
-        full_left_gripper_action = [left_gripper_action, left_gripper_action]
-        full_right_gripper_action = [right_gripper_action, right_gripper_action]
+        full_left_gripper_action = [left_gripper_action]
+        full_right_gripper_action = [right_gripper_action]
 
         # Concatenate the final action array
         env_action = np.concatenate(
