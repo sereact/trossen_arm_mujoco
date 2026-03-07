@@ -1,0 +1,44 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "eval_pi05: standard",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/trossen_arm_mujoco/scripts/eval_pi05_trossen_mujoco.py",
+            "args": [
+                "--checkpoint", "/home/dzmitry/sandbox/trossen/pi05_models/transfer_cube1_40000/pretrained_model",
+                "--output", "/home/dzmitry/sandbox/trossen/media_output/pi05_finetuned/eval_standard.mp4"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "MUJOCO_GL": "egl"
+            }
+        },
+        {
+            "name": "eval_pi05: RTC",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/trossen_arm_mujoco/scripts/eval_pi05_trossen_mujoco.py",
+            "args": [
+                "--checkpoint", "/home/dzmitry/sandbox/trossen/pi05_models/transfer_cube1_40000/pretrained_model",
+                "--output", "/home/dzmitry/sandbox/trossen/media_output/pi05_finetuned/eval_rtc.mp4",
+                "--rtc"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "MUJOCO_GL": "egl"
+            }
+        }
+    ]
+}

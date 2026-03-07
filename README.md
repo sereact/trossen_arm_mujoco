@@ -248,6 +248,84 @@ The simulation uses XML files stored in the `assets/` directory. To introduce a 
 2. Modify `sim_env.py` to load the new environment by specifying the new XML file.
 3. Update the scripted policies in `scripted_policy.py` to accommodate new task goals and constraints.
 
+## 5. PI0.5 Policy Evaluation
+
+### Gymnasium Wrapper (`trossen_arm_mujoco/wrapper/trossen_gym_wrapper.py`)
+
+A standalone Gymnasium wrapper converts any Trossen dm_control environment into the standard `gym.Env` interface with LeRobot-compatible observation keys.
+
+```python
+from trossen_arm_mujoco.wrapper import TrossenMujocoGymWrapper, SIM_CAMERAS
+from trossen_arm_mujoco.utils import make_sim_env
+from trossen_arm_mujoco.sim_env import TransferCubeTask
+
+dm_env = make_sim_env(
+    task_class=TransferCubeTask,
+    xml_file="trossen_ai_scene_white_table.xml",
+    cam_list=SIM_CAMERAS,
+    onscreen_render=False,
+)
+env = TrossenMujocoGymWrapper(dm_env)
+obs, info = env.reset()
+obs, reward, terminated, truncated, info = env.step(env.action_space.sample())
+```
+
+Observation keys:
+
+| Key | Shape | Type |
+|---|---|---|
+| `observation.images.static1` | (H, W, 3) | uint8 |
+| `observation.images.static2` | (H, W, 3) | uint8 |
+| `observation.images.wrist1` | (H, W, 3) | uint8 |
+| `observation.images.wrist2` | (H, W, 3) | uint8 |
+| `observation.state` | (16,) | float32 |
+
+### Evaluation Script (`trossen_arm_mujoco/scripts/eval_pi05_trossen_mujoco.py`)
+
+Runs a finetuned PI0.5 checkpoint in simulation and records a 2×2 grid video from all 4 cameras.
+
+**Important:** Run the script as a module from the repo root, otherwise `trossen_arm_mujoco` won't be on `sys.path`:
+
+```bash
+python -m trossen_arm_mujoco.scripts.eval_pi05_trossen_mujoco --checkpoint /path/to/pretrained_model --output /path/to/output.mp4
+```
+
+Alternatively, install the package first and then run directly:
+
+```bash
+pip install -e .
+python trossen_arm_mujoco/scripts/eval_pi05_trossen_mujoco.py --checkpoint /path/to/pretrained_model --output /path/to/output.mp4
+```
+
+**Standard inference:**
+```bash
+python -m trossen_arm_mujoco.scripts.eval_pi05_trossen_mujoco \
+    --checkpoint /path/to/pretrained_model \
+    --output /path/to/output.mp4
+```
+
+**RTC (Real-Time Chunking) inference:**
+```bash
+python -m trossen_arm_mujoco.scripts.eval_pi05_trossen_mujoco \
+    --checkpoint /path/to/pretrained_model \
+    --output /path/to/output.mp4 \
+    --rtc
+```
+
+**All arguments:**
+
+| Argument | Default | Description |
+|---|---|---|
+| `--checkpoint` | required | Path to model checkpoint directory |
+| `--xml` | `trossen_ai_scene_white_table.xml` | MuJoCo scene XML file |
+| `--output` | `./eval_output.mp4` | Output video path |
+| `--steps` | `400` | Number of episode steps |
+| `--task` | `pick up the cube` | Language task instruction |
+| `--fps` | `20` | Video FPS |
+| `--rtc` | flag | Enable Real-Time Chunking inference |
+| `--rtc-horizon` | `10` | Steps to execute per inference call (RTC) |
+| `--rtc-guidance` | `10.0` | Max guidance weight (RTC) |
+
 ## Troubleshooting
 
 If you encounter into Mesa Loader or `mujoco.FatalError: gladLoadGL error` errors:
